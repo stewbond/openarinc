@@ -1,0 +1,4 @@
+This directory is intended for output binary files from this library, intended for use by a 3rd party.  
+This is the output directory of make file
+
+Files in this directory shall be git-ignored.

@@ -1,0 +1,4 @@
+This directory is intended for include files from this library, intended for use by a 3rd party.  
+Files here will be copies from their relevant locations in the project sources. 
+
+Files in this directory shall be git-ignored.

@@ -1,0 +1,3 @@
+This directory is intended for intermediate binary files (.o).    
+
+Files in this directory shall be git-ignored.
