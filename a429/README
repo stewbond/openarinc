@@ -20,18 +20,19 @@ at bits 30-31.  Enumeration of the possible values are defined by the A429 subty
   FW  - Failure warning
   FT  - Fault Test
 
-The parity (bit 32) is used to validate that the word has not been corrupted after transmission.  The parity
-bit is manipulated so that there are always an odd number of 1s.
+The parity (bit 32) is used to validate that the word has not been corrupted after transmission.  The 
+parity bit is manipulated so that there are always an odd number of 1s.
 
 Data is contained in bits 11-29.  Representation conventions are defined by the A429 types, and content is
 defined by device ICDs.
 
 DIS (discrete) data:
-When a discrete A429 label is used, bits 11-29 are individually defined.  Each individual bit generally represents
-a single status or fault.  Occasionally, a set of bits represent an ennumeration.
+When a discrete A429 label is used, bits 11-29 are individually defined.  Each individual bit generally 
+represents a single status or fault.  Occasionally, a set of bits represent an enumeration.
 
 BNR (binary) data:
-BNR data represents a real number, packed into a predefined number of bits.  It contains the following features:
+BNR data represents a real number, packed into a predefined number of bits.  It contains the following 
+features:
   Sign bit   (bit 29 unless otherwise specified).  A 1 indicates a negative.
   End bit    (bit 28 unless otherwise specified).  This is the most significant bit (MSB).
   Start bit  (defined by ICD). This is the least significant bit (LSB) and is less than end bit.
@@ -41,7 +42,8 @@ BNR data represents a real number, packed into a predefined number of bits.  It 
   Range      (defined by ICD). This gives a range of numbers that will fit into the BNR.  This can be
              used to calculate the resolution. Range = ( 2^#bits - 1) * Resolution
 
-ICDs will generally define either start bit or # bits. ICDs will generally define either Range or Resolution.
+ICDs will generally define either start bit or # bits. ICDs will generally define either Range or 
+Resolution.
 
 BNR Decode Example:
   Sign: 29, Endbit: 28, Startbit: 17, Range: +/- 2048, A429 word: 0x6d46001d
@@ -103,10 +105,10 @@ a429base
 
   Constructor:
     Varients:
-        a429base();                        // Default constructor (initializes to zero'd internal memory)
-        a429base(const a429base& copy);    // Copy constructor
-        a429base(UINT input);              // Construct by value, (initializes to internal memory with the input value)
-        a429base(UINT* reference);         // Construct to a refernce (intializes to utilize external memory, see Link() ).
+        a429base();                      // Default constructor (initializes to zero'd internal memory)
+        a429base(const a429base& copy);  // Copy constructor
+        a429base(UINT input);            // Construct by value, (initializes to internal memory)
+        a429base(UINT* reference);       // Construct to reference (initializes to ext memory, see Link())
     Parameters:
       none      - When no parameters are given, the constructor will use internal memory and zero the data.
       copy      - Internal memory (including pointers) are copied from this parameter
@@ -114,8 +116,9 @@ a429base
       reference - The 32-bit arinc word points to the reference.  See Link().
 
   Memory Management:
-    Operations can be done on internal or external memory.  Internal encapsulates data, while external allows the
-    user to maintain the 32-bit words in another area, then use these classes as helper functions to manipulate the data.
+    Operations can be done on internal or external memory.  Internal encapsulates data, while external
+	allows the user to maintain the 32-bit words in another area, then use these classes as helper 
+	functions to manipulate the data.
 
       Link(UINT* word)
         Description:
@@ -140,7 +143,8 @@ a429base
     Description:
       Sets the A429 SDI bits (9-10) to the specified value.
     Parameters:
-      value   - The desired SDI.  Range should be 0-3.  If value is out of range, only the first two bits are considered.
+      value   - The desired SDI.  Range should be 0-3.  If value is out of range, only the first two bits
+                are considered.
     Return:
       A reference to the a429base object.
 
@@ -148,7 +152,8 @@ a429base
     Description:
       Sets the A429 SSM bits (30-31) to the specified value.
     Parameters:
-      value   - The desired SSM.  Range should be 0-3.  If value is out of range, only the first two bits are considered.
+      value   - The desired SSM.  Range should be 0-3.  If value is out of range, only the first two bits 
+                are considered.
     Return:
       A reference to the a429base object.
 
@@ -156,7 +161,8 @@ a429base
     Description:
       Sets the label name (bits 1-8) to the specified value
     Parameters:
-      value   - The desired octal label (ex: 0270). Range should be 0-0377. Ex: SetLbl(0270) will set label 270 (0x1d)
+      value   - The desired octal label (ex: 0270). Range should be 0-0377. Ex: SetLbl(0270) will set label 
+                270 (0x1d)
     Return:
       A reference to the a429base object.
 
@@ -164,14 +170,16 @@ a429base
     Description:
       Sets the label name (bits 1-8) to the specified reverse value.
     Parameters:
-      value   - The desired byte to appear in bits 1-8.  Range should be 0x00 to 0xff.  Ex: SetRevLbl(0x1d) will set label 270
+      value   - The desired byte to appear in bits 1-8.  Range should be 0x00 to 0xff.  
+                Ex: SetRevLbl(0x1d) will set label 270
     Return:
       A reference to the a429base object.
 
     SetPar()
     SetPar(bool p)
     Description:
-      Sets the parity (bit 32) of the A429 word.  If no arguments are given, the parity is calculated and set automatically.
+      Sets the parity (bit 32) of the A429 word.  If no arguments are given, the parity is calculated and
+      set automatically.
     Parameters:
       p       - specifies the value of bit 32.
     Return:
@@ -205,13 +213,14 @@ a429base
   A429 Helpers:
     CalcPar()
     Description:
-      Calculates the expected parity of a word which should be present on bit 32. It does not return bit 32.
+      Calculates the expected parity of a word which should be present on bit 32. It does not return 
+      bit 32.
     Return:
       Returns the expected parity of a word.
 
 a429dis
-  Provides discrete-specific operations.  All functionality from a429base is also avaialable.  The constructors
-  and operators are identical to those provided by a429base.
+  Provides discrete-specific operations.  All functionality from a429base is also avaialable.  The
+  constructors and operators are identical to those provided by a429base.
 
   DIS Setters:
     SetBit (bool value, int pos)
@@ -225,11 +234,13 @@ a429dis
 
     SetBits(UINT value, int msb, int lsb)
       Description: 
-        Sets several consecutive bits to the contents of value.  The number of bits overwritten are defined by
-        parameters msb and lsb with content defined in value.
+        Sets several consecutive bits to the contents of value.  The number of bits overwritten are defined
+        by parameters msb and lsb with content defined in value.
       Parameters:
-        lsb   - least significant bit of the 32-bit word to write.  It should be betweeen 1 and msb (inclusive).
-        msb   - most significant bit of the 32-bit word to write.  It should be between lsb and 32 (inclusive).
+        lsb   - least significant bit of the 32-bit word to write.  
+                It should be between 1 and msb (inclusive).
+        msb   - most significant bit of the 32-bit word to write.  
+                It should be between lsb and 32 (inclusive).
       Return:
         A reference to the a429base object.
 
@@ -294,7 +305,8 @@ a429bnr
       variations are provided to account for various definitions that ICDs may give.
     Parameters:
       resolution - value of the lsb.
-      range      - Distance from 0 by the most positive or negative number that can be represented by this word.
+      range      - Distance from 0 by the most positive or negative number that can be represented by 
+                   this word.
       sigbits    - number of significant bits (msb - lsb + 1)
       startbit   - location of the lsb
       endbit     - location of the msb (28 unless otherwise defined)
@@ -341,10 +353,10 @@ a429bcd
     Description:
       Sets a single BCD-digit shown in data, to the A429 word between startbit and endbit (inclusive).
     Parameters:
-      data     - This is the integer to be encoded.  Typically this is a value between 0-9, but is often less
-                 if fewer than 4 bits are allocated to that space.  This can be any number you choose, but you
-                 must ensure that the value will fit into (endbit-startbit+1) bits.  The number will be
-                 truncated if it does not fit in that number of bits.
+      data     - This is the integer to be encoded.  Typically this is a value between 0-9, but is often 
+                 less if fewer than 4 bits are allocated to that space.  This can be any number you 
+                 choose, but you must ensure that the value will fit into (endbit-startbit+1) bits.  The
+                 number will be truncated if it does not fit in that number of bits.
       startbit - This is the least significant bit of the digit.  It must be between endbit and 1.
       endbit   - This is the most significant bit of the digit.  It must be between startbit and 32.
     Return:
@@ -359,3 +371,6 @@ a429bcd
       endbit   - This is the most significant bit of the digit.  It must be between startbit and 32.
     Retrun:
       See description.
+
+a429hyb
+  This class provides no new methods.  It simply combines all methods from the other classes.
