@@ -1,24 +1,30 @@
-INCDIR = ext/include
-LIBDIR = ext/lib
-SRCDIR = src
-INTDIR = int
-OUTDIR = bin
+INCDIR = ext/include # 3rd party includes
+LIBDIR = ext/lib     # 3rd party libs
+SRCDIR = src         # sources and headers
+INTDIR = int         # objects (.o and .d)
+OUTBINDIR = bin      # resulting binaries
+OUTINCDIR = include  # copy of relevant exported include files to go with binaries
 
-CPPFILES = $(SRCDIR)/a429/a429base.cpp $(SRCDIR)/a429/a429bcd.cpp $(SRCDIR)/a429/a429bnr.cpp $(SRCDIR)/a429/a429dis.cpp $(SRCDIR)/a429/a429hyb.cpp 
 
-HPPFILES = $(SRCDIR)/a429/a429base.hpp $(SRCDIR)/a429/a429bcd.hpp $(SRCDIR)/a429/a429bnr.hpp $(SRCDIR)/a429/a429dis.hpp $(SRCDIR)/a429/a429hyb.hpp 
+CPPFILES = $(wildcard $(SRCDIR)/a429/*.cpp)
+HPPFILES = $(CPPFILES:.cpp=.o)
+OBJFILES = $(addprefix $(INTDIR)/,$(notdir $(CPPFILES:.cpp=.o))) 
 
-OBJFILES = $(INTDIR)/a429base.o $(INTDIR)/a429bcd.o $(INTDIR)/a429bnr.o $(INTDIR)/a429dis.o $(INTDIR)/a429hyb.o 
+CC_FLAGS = -I$(INCDIR) -MMD
 
 all : $(OBJFILES)
-	g++ -o $(OUTDIR)/output $(OBJFILES)
+	ar rvs $(OUTBINDIR)/libopenarinc.a $(OBJFILES) && cp $(SRCDIR)/a429/*.hpp $(OUTINCDIR)/a429
 
-$(OBJFILES) : $(CPPFILES) $(HPPFILES)
-	g++ -c $(CPPFILES) -I$(INCDIR)
+$(INTDIR)/%.o : $(SRCDIR)/a429/%.cpp 
+	g++ -c -o $@ $< $(CC_FLAGS)
 
+#test: 
+#	g++ test/sometest.cpp bin/libopenarinc.a -o bin/test -I./include
 
 .PHONY: clean
 
 clean:
-	rm -f $(INTDIR)/*.o && rm $(OUTDIR)/*
+	rm -f $(INTDIR)/*.o $(INTDIR)/*.d $(OUTBINDIR)/openarinc
 
+
+-include $(OBJFILES:.o=.d)
