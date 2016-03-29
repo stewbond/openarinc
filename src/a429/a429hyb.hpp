@@ -1,3 +1,6 @@
+#ifndef OPENARINC_A429HYB_HPP
+#define OPENARINC_A429HYB_HPP
+
 #include "a429base.hpp"
 #include "a429bcd.hpp"
 #include "a429bnr.hpp"
@@ -25,3 +28,4 @@ namespace a429
     // The type A429 is a hybrid type which contains all methods from all types of A429 labels
     typedef a429hyb a429;
 }
+#endif // OPENARINC_A429HYB_HPP

@@ -1,3 +1,6 @@
+#ifndef OPENARINC_A429BASE_HPP
+#define OPENARINC_A429BASE_HPP
+
 namespace a429
 {
     typedef unsigned int UINT;
@@ -47,3 +50,5 @@ namespace a429
         UCHAR CalcPar()   const;  // Calculates the appropriate parity bit of the A429 word.
     };
 }
+#endif // OPENARINC_A429BASE_HPP
+

@@ -1,3 +1,6 @@
+#ifndef OPENARINC_A429DIS_HPP
+#define OPENARINC_A429DIS_HPP
+
 #include "a429base.hpp"
 
 namespace a429
@@ -29,4 +32,4 @@ namespace a429
         UINT     GetBits(int msb, int lsb) const;
     };
 }
-
+#endif   // OPENARINC_A429DIS_HPP

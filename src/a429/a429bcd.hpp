@@ -1,3 +1,6 @@
+#ifndef OPENARINC_A429BCD_HPP
+#define OPENARINC_A429BCD_HPP
+
 #include "a429base.hpp"
 
 namespace a429
@@ -41,3 +44,5 @@ namespace a429
         UINT GetDigit(unsigned int startbit, unsigned int endbit) const;
     };
 }
+
+#endif // OPENARINC_A429BCD_HPP

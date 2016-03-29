@@ -1,3 +1,6 @@
+#ifndef OPENARINC_A429BNR_HPP
+#define OPENARINC_A429BNR_HPP
+
 #include "a429base.hpp"
 
 namespace a429
@@ -42,3 +45,5 @@ namespace a429
         a429bnr& SetBNRPropertiesD(double range,      int startbit, int endbit = 28, int signbit = 29);
     };
 }
+
+#endif // OPENARINC_A429BNR_HPP
