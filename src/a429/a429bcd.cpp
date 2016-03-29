@@ -2,6 +2,11 @@
 
 namespace a429
 {
+    double fabs(double input)
+    {
+        return (input < 0)? -1*input : input;
+    }
+
     UINT a429bcd::operator= (UINT word)
     {
         *m_packed = word;
@@ -98,7 +103,7 @@ namespace a429
 
         output *= m_res;
 
-        if (GetSSM() == sim::BCD_NEG)
+        if (GetSSM() == BCD_NEG)
             output *= -1;
 
         return output;

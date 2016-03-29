@@ -16,8 +16,8 @@ namespace a429
     class a429bnr : public virtual a429base
     {
     private:
-        void SetBit(bool value, int pos);
-        bool GetBit(int pos) const;
+        void SetBit(bool value, unsigned int pos);
+        UINT GetBit(unsigned int pos) const;
 
     protected:
         double       m_res;

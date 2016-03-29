@@ -8,18 +8,19 @@ namespace a429
         return *m_packed;
     }
 
-    void a429bnr::SetBit(int value, int pos)
+    void a429bnr::SetBit(bool value, unsigned int pos)
     {
         if (value)
         {
             *m_packed |= 0x1 << (pos - 1);
-            return *m_packed;
         }
-
-        *m_packed &= ~(0x1 << (pos - 1));
+        else
+        {
+            *m_packed &= ~(0x1 << (pos - 1));
+        }
     }
 
-    UINT a429bnr::GetBit(int pos) const
+    UINT a429bnr::GetBit(unsigned int pos) const
     {
         return (*m_packed >> (pos - 1)) & 0x1;
     }

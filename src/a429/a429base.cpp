@@ -26,7 +26,7 @@ namespace a429
     a429base::a429base()
         : m_myword(0), m_packed(&m_myword) {}
 
-    a429base::a429base(const A429Base& copy)
+    a429base::a429base(const a429base& copy)
         : m_myword(*copy.m_packed), m_packed(&m_myword) {}
 
     a429base::a429base(UINT in)
