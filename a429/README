@@ -1,0 +1,361 @@
+These classes provide a means to manipulate 32-bit words following the A429 standards.
+
+A429 Theory:
+
+ MSB  |  P  M  M  *  *  *  *  * |  *  *  *  *  *  *  *  * |  *  *  *  *  *  *  S S | L L L L L L L L |  LSB
+bits  | 32-31-30-29-28-27-26-25 | 24-23-22-21-20-19-18-17 | 16-15-14-13-12-11-10-9 | 8-7-6-5-4-3-2-1 |
+
+Label (bits 1-8) represent an identifier for the word.  It is often defined as a reverse-octal number.
+For example label 270 is octal (10 111 000).  Then we need to reverse that number ( 0001 1101 or 0x1d ).
+0x1d sits in bits 1-8.
+
+The SDI (Serial Data Index) is often used to show different versions of the same word.  This may
+represent different sources (L/C/R) or alternate definitions for DIS words.  It is a 2-bit identifier
+(values 0-3) located at bits 9-10.
+
+The SSM (Status Sign Matrix) is used to define the health of a word.  It is a 2-bit identifier located
+at bits 30-31.  Enumeration of the possible values are defined by the A429 subtype.  The possible values are: 
+  NO  - Normal operation
+  NCD - No computed data
+  FW  - Failure warning
+  FT  - Fault Test
+
+The parity (bit 32) is used to validate that the word has not been corrupted after transmission.  The parity
+bit is manipulated so that there are always an odd number of 1s.
+
+Data is contained in bits 11-29.  Representation conventions are defined by the A429 types, and content is
+defined by device ICDs.
+
+DIS (discrete) data:
+When a discrete A429 label is used, bits 11-29 are individually defined.  Each individual bit generally represents
+a single status or fault.  Occasionally, a set of bits represent an ennumeration.
+
+BNR (binary) data:
+BNR data represents a real number, packed into a predefined number of bits.  It contains the following features:
+  Sign bit   (bit 29 unless otherwise specified).  A 1 indicates a negative.
+  End bit    (bit 28 unless otherwise specified).  This is the most significant bit (MSB).
+  Start bit  (defined by ICD). This is the least significant bit (LSB) and is less than end bit.
+  # bits     (defined by ICD).  #bits = endbit - startbit + 1
+  Resolution (defined by ICD). This gives the value of the LSB. Multiplying the binary integer by this
+             will give you the intended number.
+  Range      (defined by ICD). This gives a range of numbers that will fit into the BNR.  This can be
+             used to calculate the resolution. Range = ( 2^#bits - 1) * Resolution
+
+ICDs will generally define either start bit or # bits. ICDs will generally define either Range or Resolution.
+
+BNR Decode Example:
+  Sign: 29, Endbit: 28, Startbit: 17, Range: +/- 2048, A429 word: 0x6d46001d
+
+  First calculate resolution and #bits:
+    #bits = Endbit - Startbit + 1 = 12
+    Resolution = Range / (2^#bits) = 0.5
+
+  Next, mask and shift data (move LSB to first bit, and mask to remove anything above MSB)
+    (0x6d46001d & 0x0fff0000) >> 16 = 0x00000d46
+
+  Finally, multiply that number by the resolution: 
+     0xd46 = 3398d
+     3398 * 0.5 = 1699 <-- This is the number that was packed into BNR.
+
+BCD (binary computed data):
+BCD represents a set of digits.  This is useful for integer values such as tuned frequencies or headings
+with a very small and specific number of digits.  A BCD word can have up to six digits encoded.
+
+6 digit BCD configuration (over-rides SDI): 
+  | 29 | 28-27-26-25 | 24-23-22-21 | 20-19-18-17 | 16-15-14-13 | 12-11-10-09 |
+  | 1st|     2nd     |     3rd     |     4th     |     5th     |     6th     |
+
+5 or fewer digit BCD configuration:
+  | 29-28-27 | 26-25-24-23 | 22-21-20-19 | 18-17-16-15 | 14-13-12-11 |
+  |    1st   |     2nd     |     3rd     |     4th     |     5th     |
+
+Note that digits with fewer than four bits are restricted in terms of range.
+When a number uses fewer than 5 digits, it always populates 1st before 2nd
+before 3rd, etc.  A resolution may be applied to each digit.  The SSM will
+define whether a valid number is positive or negative.
+
+
+Hybrid words:
+Some arinc words take advantage of multiple types.  For example, a BCD digit may be coded on
+bits 11-14, followed by discrete status in bits 15-16, and a BNR word from bits 17 to 29.
+The ICD should define the SSM scheme used by such a word.
+
+
+
+Class heirarchy:
+ (parent) <-----------> (child)
+
+a429base══╗
+          ╠══a429bnr══╗
+          ╠══a429bcd══╣
+          ╚══a429dis══╣
+                      ╚══a429hyb
+
+Classes:
+a429base
+  provides generic a429 functionality such as label formatting, SDI, SSM, and parity operations.
+  It also contains memory management options (internal data or external pointers).
+  All a429xxx classes provided are inherited from this base-class.
+  All a429xxx classes provide operators which allow the user to cast to or from a UINT.
+  All a429xxx classes provide the same scheme of constructors.
+  Unless otherwise stated, methods return a reference to the object.  This enables chaining commands.
+    example:  a429word.SetLbl(0270).SetSDI(01).SetSSM(DIS_FW);
+
+  Constructor:
+    Varients:
+        a429base();                        // Default constructor (initializes to zero'd internal memory)
+        a429base(const a429base& copy);    // Copy constructor
+        a429base(UINT input);              // Construct by value, (initializes to internal memory with the input value)
+        a429base(UINT* reference);         // Construct to a refernce (intializes to utilize external memory, see Link() ).
+    Parameters:
+      none      - When no parameters are given, the constructor will use internal memory and zero the data.
+      copy      - Internal memory (including pointers) are copied from this parameter
+      input     - The 32-bit arinc word is set to input.  Internal memory is used.
+      reference - The 32-bit arinc word points to the reference.  See Link().
+
+  Memory Management:
+    Operations can be done on internal or external memory.  Internal encapsulates data, while external allows the
+    user to maintain the 32-bit words in another area, then use these classes as helper functions to manipulate the data.
+
+      Link(UINT* word)
+        Description:
+          Sets this object to use external memory.
+          This function will not initialize the external memory.
+          When manipulations are done with this class, the external memory will be manipulated.
+        Parameters:
+          word  - Pointer to an external block of memory containing a 32-bit word which needs formatting.
+        Return:
+          A reference to the a429base object.
+
+      UnLink()
+        Description:
+          Sets this object to use internal memory.
+          This function will not initialize the internal memory.
+          The last value experienced by this memory (often zero'd during construction) will persist.
+        Return:
+          A reference to the a429base object.
+
+  A429 Setters:
+    SetSDI(UCHAR value)
+    Description:
+      Sets the A429 SDI bits (9-10) to the specified value.
+    Parameters:
+      value   - The desired SDI.  Range should be 0-3.  If value is out of range, only the first two bits are considered.
+    Return:
+      A reference to the a429base object.
+
+    SetSSM(UCHAR value)
+    Description:
+      Sets the A429 SSM bits (30-31) to the specified value.
+    Parameters:
+      value   - The desired SSM.  Range should be 0-3.  If value is out of range, only the first two bits are considered.
+    Return:
+      A reference to the a429base object.
+
+    SetLbl(UCHAR value)
+    Description:
+      Sets the label name (bits 1-8) to the specified value
+    Parameters:
+      value   - The desired octal label (ex: 0270). Range should be 0-0377. Ex: SetLbl(0270) will set label 270 (0x1d)
+    Return:
+      A reference to the a429base object.
+
+    SetRevLbl(UCHAR value)
+    Description:
+      Sets the label name (bits 1-8) to the specified reverse value.
+    Parameters:
+      value   - The desired byte to appear in bits 1-8.  Range should be 0x00 to 0xff.  Ex: SetRevLbl(0x1d) will set label 270
+    Return:
+      A reference to the a429base object.
+
+    SetPar()
+    SetPar(bool p)
+    Description:
+      Sets the parity (bit 32) of the A429 word.  If no arguments are given, the parity is calculated and set automatically.
+    Parameters:
+      p       - specifies the value of bit 32.
+    Return:
+      A reference to the a429base object.
+
+  A429 Getters:
+    GetSDI()
+    Return:
+      The SDI (bits 9-10) of the A429 word in the first two bits of the returned byte.
+
+    GetSSM()
+    Return:
+      The SSM (bits 30-31) of the A429 word in the first two bits of the returned byte.
+
+    GetLbl()
+    Return:
+      The label (bits 1-8 reversed) of the A429 word in the reverse octal format (ex: 0270)
+
+    GetRevLbl()
+    Return:
+      The label (bits 1-8) of the A429 word in it's packed format (ex: 0x1d)
+
+    GetPar()
+    Return:
+      The parity which should be present on bit 32.  It does not return bit 32.
+
+    GetWord()
+    Return:
+      The full 32-bit packed word.  This is identical to casting this object to a UINT.
+
+  A429 Helpers:
+    CalcPar()
+    Description:
+      Calculates the expected parity of a word which should be present on bit 32. It does not return bit 32.
+    Return:
+      Returns the expected parity of a word.
+
+a429dis
+  Provides discrete-specific operations.  All functionality from a429base is also avaialable.  The constructors
+  and operators are identical to those provided by a429base.
+
+  DIS Setters:
+    SetBit (bool value, int pos)
+      Description:
+        Sets the bit at pos to value.
+      Parameters:
+        value  - A boolean representing the intended bit's value
+        pos    - The position of the bit.  it should be in the range of 1-32.
+      Return:
+        A reference to the a429base object.
+
+    SetBits(UINT value, int msb, int lsb)
+      Description: 
+        Sets several consecutive bits to the contents of value.  The number of bits overwritten are defined by
+        parameters msb and lsb with content defined in value.
+      Parameters:
+        lsb   - least significant bit of the 32-bit word to write.  It should be betweeen 1 and msb (inclusive).
+        msb   - most significant bit of the 32-bit word to write.  It should be between lsb and 32 (inclusive).
+      Return:
+        A reference to the a429base object.
+
+  DIS Getters:
+    GetBit (int pos)
+      Description: 
+        Gets the bit at a certain position.
+      Parameters: 
+        pos   - The position of the bit in question (range 1-32).
+      Return:
+        Will return 1 if that bit is 1, and 0 if that bit is 0.
+
+    GetBits(int msb, int lsb)
+      Description: 
+        Gets all bits between msb and lsb, bit-shifted to be right-aligned.
+      Parameters:
+        lsb  - least significant bit of the 32-bit word to get.  It should be between 1 and msb.
+        msb  - most significant bit of the 32-bit word to get.  It should be between lsb and 32.
+      Return:
+        Will return the values of the requested bits, shifted to the right.
+
+a429bnr
+  Provides BNR-specific operations.  All functionality from a429base is also avaialable.  The constructors
+  and operators are identical to those provided by a429base.  a429bnr contains additional memory to store
+  the BNR definitions from an ICD.  This allow a user to set the properties once and then use a short call
+  to drive/get data into/from the BNR word without re-defining the BNR packing properties each time.  It is
+  recommended to define packing properties shortly after object construction.
+
+  SetBNR(double data)
+  SetBNR(double data, double resolution, int sigbits, int endbit, int signbit)
+    Description:
+      Sets BNR data according to packing properties.  If packing properties are not set, the long version
+      must be used.  If packing properties are set, the short version may be used.
+    Parameters: 
+      data       - data to be packed into a429 bnr format
+      resolution - value of the lsb.
+      sigbits    - number of significant bits (msb - lsb + 1)
+      endbit     - location of the msb (28 unless otherwise defined)
+      signbit    - location of the sign bit (29 unless otherwise defined)
+    Return:
+      A reference to the a429bnr object.
+
+  GetBNR()
+  GetBNR(double resolution, int sigbits, int endbit, int signbit)
+    Description:
+      Gets BNR data according to packing properties.  If packing properties are not set, the long version
+      must be used.  If packing properties are set, the short version may be used.
+    Parameters:
+      resolution - value of the lsb.
+      sigbits    - number of significant bits (msb - lsb + 1)
+      endbit     - location of the msb (28 unless otherwise defined)
+      signbit    - location of the sign bit (29 unless otherwise defined)
+    Return:
+      A 64-bit floating-point number representing the unpacked number extracted from the word.
+
+  SetBNRPropertiesA(double resolution, int sigbits,  int endbit, int signbit)
+  SetBNRPropertiesB(double range,      int sigbits,  int endbit, int signbit)
+  SetBNRPropertiesC(double resolution, int startbit, int endbit, int signbit)
+  SetBNRPropertiesD(double range,      int startbit, int endbit, int signbit)
+    Description:
+      Sets/Stores BNR packing properties so that short-hand get/set functions can be used.  Several
+      variations are provided to account for various definitions that ICDs may give.
+    Parameters:
+      resolution - value of the lsb.
+      range      - Distance from 0 by the most positive or negative number that can be represented by this word.
+      sigbits    - number of significant bits (msb - lsb + 1)
+      startbit   - location of the lsb
+      endbit     - location of the msb (28 unless otherwise defined)
+      signbit    - location of the sign bit (29 unless otherwise defined)
+    Return:
+      A reference to the a429bnr object.
+
+a429bcd
+  Provides BCD-specific operations.  All functionality from a429base is also avaialable.  The constructors
+  and operators are identical to those provided by a429base.  Similar to BNRs, BCDs require configuration.
+  This configuration includes the number of digits encoded in this word (max 6), and the resolution of the
+  least-significant digit.  Resolution is generally a power of 10 (0.01, 0.1, 1.0, 10, 100, ...).
+
+  SetBCD(double data)
+    Description:
+      Easily sets BCD data into a word where the packing information is previously defined.
+      This single function call will set all digits of the BCD based on the data provided. It is
+      necessary to call SetBCDProperties at least once before this.  Otherwise, defaults will be used
+      which are likely not what you are looking for.
+    Parameters: 
+      data - This contains the digits that need to be encoded.
+    Return:
+      A reference to the a429bcd object
+
+  GetBCD()
+    Description: 
+      Easily extracts BCD data into a 64-bit floating-point number.  It is necessary to configure the BCD
+      word with SetBCDProperties at least once before calling this.
+    Return:
+      A double containing the BCD data
+
+  SetBCDProperties(double resolution, unsigned int numdigits )
+    Description:
+      Sets the BCD properties, allowing SetBCD and GetBCD to be used.
+    Parameters
+      resolution - This is the value of the least-significant digit.  This is
+                   1.0 by default, and is conventionally a power of 10.
+      numdigits  - This is the number of decimal digits encoded into the BCD word.
+                   This should be an integer between 1 and 6 (inclusive)
+    Return:
+      A reference to the a429bcd object
+
+  SetDigit(unsigned int data, unsigned int startbit, unsigned int endbit)
+    Description:
+      Sets a single BCD-digit shown in data, to the A429 word between startbit and endbit (inclusive).
+    Parameters:
+      data     - This is the integer to be encoded.  Typically this is a value between 0-9, but is often less
+                 if fewer than 4 bits are allocated to that space.  This can be any number you choose, but you
+                 must ensure that the value will fit into (endbit-startbit+1) bits.  The number will be
+                 truncated if it does not fit in that number of bits.
+      startbit - This is the least significant bit of the digit.  It must be between endbit and 1.
+      endbit   - This is the most significant bit of the digit.  It must be between startbit and 32.
+    Return:
+      A reference to the a429bcd object
+
+  GetDigit(unsigned int startbit, unsigned int endbit)
+    Description:
+      Returns the value of the integer between startbit and endbit (inclusive).  Generally this is a number
+      between 0-9 when 4 bits are available, but technically it could be a number between 0x0 and 0xf.
+    Parameters: 
+      startbit - This is the least significant bit of the digit.  It must be between endbit and 1.
+      endbit   - This is the most significant bit of the digit.  It must be between startbit and 32.
+    Retrun:
+      See description.
