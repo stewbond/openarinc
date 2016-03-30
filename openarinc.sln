@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openarinc", "openarinc.vcproj", "{217F0FDC-BA5D-41CA-A73F-E6C1120D4A7D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcproj", "{846F2C3C-12DE-49F0-B392-737B26A2CAD9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{217F0FDC-BA5D-41CA-A73F-E6C1120D4A7D} = {217F0FDC-BA5D-41CA-A73F-E6C1120D4A7D}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
