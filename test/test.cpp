@@ -8,6 +8,9 @@
 #include <a429/a429bnr.hpp>
 #include <a429/a429hyb.hpp>
 
+namespace tt = boost::test_tools;
+
+
 BOOST_AUTO_TEST_SUITE( a429base_suite )
 
 BOOST_AUTO_TEST_CASE( construct_default )
@@ -71,7 +74,7 @@ BOOST_AUTO_TEST_CASE(get_params)
 
 BOOST_AUTO_TEST_CASE(get_parity)
 {
-    a429::a429base testword(0x600001ad);
+    a429::a429base testword(0x600003ad);
 
     BOOST_TEST (testword.GetPar() == 0);
     BOOST_TEST (testword.CalcPar() == 1);
@@ -156,7 +159,7 @@ BOOST_AUTO_TEST_CASE(bcd_6_digit)
     testword.SetBCDProperties(0.001, 6);
     testword.SetBCD(123.456);
     BOOST_TEST(testword.GetWord() == 0x12345600);
-    BOOST_TEST(testword.GetBCD() == 123.456); // Todo: add tolerance
+	BOOST_TEST(testword.GetBCD() == 123.456, tt::tolerance(0.0000001));
 }
 
 BOOST_AUTO_TEST_CASE(bcd_5_digit)
@@ -170,11 +173,11 @@ BOOST_AUTO_TEST_CASE(bcd_5_digit)
 
 BOOST_AUTO_TEST_CASE(bcd_5_digit_inv)
 {
-    a429::a429bcd testword(0xffffffff); // testing that we can also remove 1s
+    a429::a429bcd testword( 0xffffffff ); // testing that we can also remove 1s
     testword.SetBCDProperties(0.1, 5);
     testword.SetBCD(32.1); // testing that leading zeros are cleared
-    BOOST_TEST (testword.GetWord() == 0x700c87ff);
-    BOOST_TEST (testword.GetBCD() == 32.1); // Todo: add tolerance
+    BOOST_TEST (testword.GetWord() == 0x800c87ff); // Note SSM should represent BCD_POS.
+	BOOST_TEST (testword.GetBCD() == 32.1, tt::tolerance(0.0001) );
 }
 
 BOOST_AUTO_TEST_CASE(bcd_4_digit)
@@ -183,7 +186,7 @@ BOOST_AUTO_TEST_CASE(bcd_4_digit)
     testword.SetBCDProperties(0.1, 4);
     testword.SetBCD(432.1);
     BOOST_TEST (testword.GetWord() == 0x10c84000);
-    BOOST_TEST (testword.GetBCD() == 432.1); // Todo: add tolerance
+    BOOST_TEST (testword.GetBCD() == 432.1,  tt::tolerance(0.00001) ); 
 }
 
 BOOST_AUTO_TEST_CASE(bcd_ssm)
@@ -215,7 +218,7 @@ BOOST_AUTO_TEST_CASE( bnr_pack )
     a429::a429bnr testword;
     testword.SetBNR(34.0, 1.0, 8);
 
-    BOOST_TEST (testword.GetWord() == 0x04400000);
+    BOOST_TEST (testword.GetWord() == 0x02200000);
 
     testword.SetBNRPropertiesA(2.0, 12);
     testword.SetBNR(-5108.0);
@@ -225,13 +228,13 @@ BOOST_AUTO_TEST_CASE( bnr_pack )
 
 BOOST_AUTO_TEST_CASE( bnr_unpack )
 {
-    a429::a429bnr testword(0x04400000);
+    a429::a429bnr testword(0x02200000);
     testword.SetBNRPropertiesA(1.0, 8);
 
-    BOOST_TEST(testword.GetBNR() == 34.0); // Todo: add tolerance
+    BOOST_TEST(testword.GetBNR() == 34.0,  tt::tolerance(0.0001) );
 
     testword = 0x19fa0000;
-    BOOST_TEST (testword.GetBNR(2.0, 12) == -5108.0); // Todo: add tolerance
+    BOOST_TEST (testword.GetBNR(2.0, 12) == -5108.0,  tt::tolerance(0.00001) ); 
 }
 
 BOOST_AUTO_TEST_CASE(bnr_ssm)
@@ -263,17 +266,17 @@ BOOST_AUTO_TEST_CASE( hyb_bnr )
     a429::a429hyb testword;
     testword.SetBNR(34.0, 1.0, 8);
 
-    BOOST_TEST (testword.GetWord() == 0x04400000);
+    BOOST_TEST (testword.GetWord() == 0x02200000);
 
     testword.SetBNRPropertiesA(2.0, 12);
     testword.SetBNR(-5108.0);
 
     BOOST_TEST (testword.GetWord() == 0x19fa0000);
 
-    BOOST_TEST(testword.GetBNR() == 34.0); // Todo: add tolerance
+    BOOST_TEST(testword.GetBNR() == -5108.0,  tt::tolerance(0.00001) );
 
     testword = 0x19fa0000;
-    BOOST_TEST (testword.GetBNR(2.0, 12) == -5108.0); // Todo: add tolerance
+    BOOST_TEST (testword.GetBNR(2.0, 12) == -5108.0,  tt::tolerance(0.00001) ); 
 }
 
 BOOST_AUTO_TEST_CASE( hyb_bcd )
@@ -282,7 +285,7 @@ BOOST_AUTO_TEST_CASE( hyb_bcd )
     testword.SetBCDProperties(0.001, 6);
     testword.SetBCD(123.456);
     BOOST_TEST(testword.GetWord() == 0x12345600);
-    BOOST_TEST(testword.GetBCD() == 123.456); // Todo: add tolerance
+    BOOST_TEST(testword.GetBCD() == 123.456,  tt::tolerance(0.0000001) ); 
 }
 
 BOOST_AUTO_TEST_CASE( hyb_dis )
