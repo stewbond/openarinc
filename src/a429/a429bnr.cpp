@@ -27,7 +27,8 @@ namespace a429
 
     a429bnr& a429bnr::SetBNR(double data)
     {
-        unsigned int iData = (((unsigned int)(data / m_res)) & m_mask) << (m_endbit - m_sigbits);
+		double absdata = (data < 0) ? -1*data : data;
+        unsigned int iData = (((unsigned int)(absdata / m_res)) & m_mask) << (m_endbit - m_sigbits);
 
         *m_packed &= ~(m_mask << (m_endbit - m_sigbits));
         *m_packed |= iData;
@@ -49,7 +50,7 @@ namespace a429
     {
         short startbit = m_endbit - m_sigbits;
         unsigned int iData = (*m_packed & (m_mask << (startbit))) >> (startbit);
-        double data = GetBit(m_signbit) ? (int)(iData | ~m_mask) * m_res : iData * m_res;
+        double data = GetBit(m_signbit) ? (int)(iData) * -m_res : iData * m_res;
 
         return data;
     }
