@@ -16,12 +16,12 @@ all : $(OBJFILES)
 $(INTDIR)/%.o : $(SRCDIR)/a429/%.cpp
 	g++ -c -o $@ $< $(CC_FLAGS)
 
-#test: 
-#	g++ test/sometest.cpp bin/libopenarinc.a -o $(OUTBINDIR)/test -I$(OUTINCDIR) -I$(INCDIR)
+test: bin/libopenarinc.a test/test.cpp 
+	g++ test/test.cpp bin/libopenarinc.a -o $(OUTBINDIR)/test -I$(OUTINCDIR) -I../boost
 
 .PHONY: clean
 
 clean: 
-	rm -f $(INTDIR)/*.o $(INTDIR)/*.d $(OUTBINDIR)/libopenarinc.a
+	rm -f $(INTDIR)/*.o $(INTDIR)/*.d $(OUTBINDIR)/libopenarinc.a $(OUTINCDIR)/a429/*.hpp
 
 -include $(OBJFILES:.o=.d)
