@@ -2,14 +2,15 @@
 #define BOOST_TEST_MODULE A429_test_module
 #include <boost/test/included/unit_test.hpp>
 
-#include "../a429/a429base.hpp"
-#include "../a429/a429dis.hpp"
-#include "../a429/a429bcd.hpp"
-#include "../a429/a429bnr.hpp"
+#include <a429/a429base.hpp>
+#include <a429/a429dis.hpp>
+#include <a429/a429bcd.hpp>
+#include <a429/a429bnr.hpp>
+#include <a429/a429hyb.hpp>
 
 BOOST_AUTO_TEST_SUITE( a429base_suite )
 
-BOOST_AUTO_TEST_CASE(construct_default)
+BOOST_AUTO_TEST_CASE( construct_default )
 {
     // Default construction, explicit cast
     a429::a429base testword;
@@ -30,7 +31,7 @@ BOOST_AUTO_TEST_CASE(construct_value_copy)
 BOOST_AUTO_TEST_CASE(assign_operator)
 {
     a429::a429base testword(0xdeadbeef);
-    a429::a429base testword2();
+    a429::a429base testword2;
 
     testword2 = testword;
     BOOST_TEST(testword2 == 0xdeadbeef);
@@ -54,7 +55,7 @@ BOOST_AUTO_TEST_CASE(set_params)
 {
     a429::a429base testword;
     testword.SetLbl(0271).SetSDI(01).SetSSM(3);
-    BOOST_TEST (testword.GetWord() == 0x6000001ad);
+    BOOST_TEST (testword.GetWord() == 0x6000019d);
 }
 
 BOOST_AUTO_TEST_CASE(get_params)
@@ -94,7 +95,7 @@ BOOST_AUTO_TEST_CASE( dis_copy_ctor )
     a429::a429base word3 = 0xdeadbeef;
     a429::a429dis word4(word3);
 
-    BOOST_TEST (word4 == 0xdeadbeef)
+    BOOST_TEST (word4 == 0xdeadbeef);
 }
 
 BOOST_AUTO_TEST_CASE(dis_bit)
@@ -134,7 +135,7 @@ BOOST_AUTO_TEST_CASE( bcd_copy_ctor )
     a429::a429base word3 = 0xdeadbeef;
     a429::a429bcd word4(word3);
 
-    BOOST_TEST (word4 == 0xdeadbeef)
+    BOOST_TEST (word4 == 0xdeadbeef);
 }
 
 BOOST_AUTO_TEST_CASE(bcd_set_digit)

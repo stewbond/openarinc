@@ -1,4 +1,11 @@
-int/*.[od]
-bin/*.[a]
+# Auto-generated visual-studio files
+*.ncb
+*.suo
+*.user
+#
+bin/*
+!bin/README
+int/*
+!int/README
 inc/*
 !inc/README
