@@ -17,7 +17,7 @@ $(INTDIR)/%.o : $(SRCDIR)/a429/%.cpp
 	g++ -c -o $@ $< $(CC_FLAGS)
 
 #test: 
-#	g++ test/sometest.cpp bin/libopenarinc.a -o bin/test -I./inc
+#	g++ test/sometest.cpp bin/libopenarinc.a -o $(OUTBINDIR)/test -I$(OUTINCDIR) -I$(INCDIR)
 
 .PHONY: clean
 
