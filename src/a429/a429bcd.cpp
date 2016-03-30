@@ -27,11 +27,14 @@ namespace a429
         else if ( m_numdigits == 3 ) *m_packed &= 0xe003ffff;
         else if ( m_numdigits == 2 ) *m_packed &= 0xe03fffff;
 
+        if (data < 0)   SetSSM(a429::BCD_NEG);
+        else            SetSSM(a429::BCD_POS);
+
         for(int k = 0; k < m_numdigits; k++)
         {
             if (m_res != 0.0)
             {
-                i_data = (int)( (fabs(data) + Epsilon)/(m_res* tens[m_numdigits - k]) );
+                i_data = (int)( (fabs(data) + Epsilon)/(m_res* tens[m_numdigits - k - 1]) );
             }
             else
             {
