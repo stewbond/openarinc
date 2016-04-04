@@ -32,5 +32,6 @@ Todo:  Items outstanding
  - Find proper way to link boost headers
  - Implement socket buffers
  - Implement templated sizes for buffers
+ - Fix std::function callback_type for basebuf_rx;
 
 
