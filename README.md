@@ -25,5 +25,12 @@ root - This folder, contains license, makefile, and this readme.
       \- <module> - sources are split logically by smaller modules
           \- *.hpp
           \- *.cpp
+		  
+		  
+		  
+Todo:  Items outstanding
+ - Find proper way to link boost headers
+ - Implement socket buffers
+ - Implement templated sizes for buffers
 
 
