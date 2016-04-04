@@ -13,6 +13,14 @@ public:
 	buf_rx(unsigned int* buf, unsigned int size) : circbuf_rx(buf, size) {}
 };
 
+/*
+template <> class buf_tx<socket_rx> : public sockbuf_rx
+{
+public: 
+	buf_rx() : sockbuf_rx(IP, Port) {}
+}
+*/
+
 template <class T> class buf_tx {};
 
 template <> class buf_tx<circbuf_tx> : public circbuf_tx
