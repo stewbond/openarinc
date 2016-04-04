@@ -11,3 +11,5 @@ Should the busses be time-aware?
 What is the best way to make these time-aware?
   - They can rely on system time.  However this may not be in sync with any real-time scheduler, especially if rates are manually manipulated or if over-runs are experienced on the rest of the system. 
   - They can rely on a dt to be passed at a regular interval.  This may complicate the interface, and require repetitive function calls.  It also requires the client to be time-aware which may not be the case.
+  - Can we make this optional?
+  

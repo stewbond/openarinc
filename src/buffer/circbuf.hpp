@@ -1,10 +1,14 @@
-#include <functional>
-#include <vector>
+#ifndef OPENARINC_CIRCBUF_HPP
+#define OPENARINC_CIRCBUF_HPP
 
-class circbuf_rx
+#include "bufbase.hpp"
+
+namespace buf
+{
+
+class circbuf_rx : public bufbase_rx
 {
 public:
-    typedef std::function<void(unsigned int)> callback_type;
 
     circbuf_rx(unsigned int* buf, unsigned int size)
         : m_buf(buf), m_size(size), m_lastindex(0) {}
@@ -27,27 +31,10 @@ public:
             process( m_buf[m_lastindex] );
     }
 
-
-    void registr(callback_type func)
-    {
-        m_listeners.push_back(func);
-    }
-
-protected:
-    void process(unsigned int word)
-    {
-        for (std::vector<callback_type>::iterator it = m_listeners.begin;
-                                                  it != m_listeners.end;
-                                                  ++it)
-            (*it)(word);
-    }
-
 private:
     unsigned int* m_buf;
     unsigned int m_size;
     unsigned int m_lastindex;
-
-    std::vector<callback_type> m_listeners;
 };
 
 
@@ -72,3 +59,7 @@ private:
     unsigned int* m_buf ;
     unsigned int  m_size;
 };
+
+} // namespace buf
+
+#endif // OPENARINC_CIRCBUF_HPP
