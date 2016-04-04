@@ -20,7 +20,7 @@ public:
     }
 
 protected:
-    void process(unsigned int word)
+    void notify(unsigned int word)
     {
         for (std::vector<callback_type>::iterator it = m_listeners.begin;
                                                   it != m_listeners.end;

@@ -22,13 +22,13 @@ public:
         if (newindex < m_lastindex)
         {
             while (++m_lastindex < m_size)
-                process(m_buf[m_lastindex]);
+                notify(m_buf[m_lastindex]);
 
             m_lastindex = 0;
         }
 
         while (newindex > m_lastindex++)
-            process( m_buf[m_lastindex] );
+            notify( m_buf[m_lastindex] );
     }
 
 private:
