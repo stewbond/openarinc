@@ -188,6 +188,22 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="buffer"
+			>
+			<File
+				RelativePath=".\src\buffer\buf.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\buffer\bufbase.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\buffer\circbuf.hpp"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
