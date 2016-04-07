@@ -3,6 +3,7 @@
 *.suo
 *.user
 #
+# Output files, incremental files, and output include files
 bin/*
 !bin/README
 int/*
