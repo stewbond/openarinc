@@ -3,7 +3,7 @@
 *.suo
 *.user
 #
-# Output files, incremental files, and output include files
+# Output files, incremental files, and output include files, but save the READMEs!
 bin/*
 !bin/README
 int/*
