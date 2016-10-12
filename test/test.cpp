@@ -141,6 +141,21 @@ BOOST_AUTO_TEST_CASE( bcd_copy_ctor )
     BOOST_TEST (word4 == 0xdeadbeef);
 }
 
+BOOST_AUTO_TEST_CASE( bcd_copy_properties )
+{
+    a429::a429bcd word1;
+    word1.SetBCDProperties(0.001, 6);
+    word1.SetBCD(123.456);
+    BOOST_TEST(word1.GetBCD() == 123.456, tt::tolerance(0.0000001));
+
+    a429::a429bcd word2(word1);
+    BOOST_TEST(word2.GetBCD() == 123.456, tt::tolerance(0.0000001));
+
+    a429::a429bcd word3;
+    word3 = word1;
+    BOOST_TEST(word3.GetBCD() == 123.456, tt::tolerance(0.0000001));
+}
+
 BOOST_AUTO_TEST_CASE(bcd_set_digit)
 {
     a429::a429bcd testword;
@@ -159,7 +174,7 @@ BOOST_AUTO_TEST_CASE(bcd_6_digit)
     testword.SetBCDProperties(0.001, 6);
     testword.SetBCD(123.456);
     BOOST_TEST(testword.GetWord() == 0x12345600);
-	BOOST_TEST(testword.GetBCD() == 123.456, tt::tolerance(0.0000001));
+    BOOST_TEST(testword.GetBCD() == 123.456, tt::tolerance(0.0000001));
 }
 
 BOOST_AUTO_TEST_CASE(bcd_5_digit)
@@ -213,7 +228,22 @@ BOOST_AUTO_TEST_CASE( bnr_copy_ctor )
     BOOST_TEST (word4 == 0xdeadbeef);
 }
 
-BOOST_AUTO_TEST_CASE( bnr_pack )
+BOOST_AUTO_TEST_CASE( bnr_copy_properties )
+{
+    a429::a429bnr word1;
+    word1.SetBNRPropertiesD(1024.0, 14, 23, 24);
+    word1.SetBNR(532.0);
+    BOOST_TEST (word1.GetBNR() == 532.0, tt::tolerance(0.0001) );
+    
+    a429::a429bnr word2(word1);
+    BOOST_TEST (word2.GetBNR() == 532.0, tt::tolerance(0.0001) );
+
+    a429::a429bnr word3;
+    word3 = word1;
+    BOOST_TEST (word3.GetBNR() == 532.0, tt::tolerance(0.0001) );
+}
+
+BOOST_AUTO_TEST_CASE( bnr_pack_A )
 {
     a429::a429bnr testword;
     testword.SetBNR(34.0, 1.0, 8);
@@ -226,15 +256,28 @@ BOOST_AUTO_TEST_CASE( bnr_pack )
     BOOST_TEST (testword.GetWord() == 0x19fa0000);
 }
 
-BOOST_AUTO_TEST_CASE( bnr_unpack )
+BOOST_AUTO_TEST_CASE( bnr_unpack_A )
 {
     a429::a429bnr testword(0x02200000);
     testword.SetBNRPropertiesA(1.0, 8);
 
-    BOOST_TEST(testword.GetBNR() == 34.0,  tt::tolerance(0.0001) );
+    BOOST_TEST (testword.GetBNR() == 34.0,  tt::tolerance(0.0001) );
 
     testword = 0x19fa0000;
     BOOST_TEST (testword.GetBNR(2.0, 12) == -5108.0,  tt::tolerance(0.00001) ); 
+}
+
+BOOST_AUTO_TEST_CASE( bnr_pack_D )
+{
+    a429::a429bnr testword;
+    testword.SetBNRPropertiesD(1024, 16, 25, 26);
+    testword.SetBNR(761.0);
+
+    BOOST_TEST (testword.GetWord() == 0x017c8000);
+    testword.SetBNR(-761.0);
+    BOOST_TEST (testword.GetWord() == 0x037c8000);
+    BOOST_TEST (testword.GetBNR() == -761.0, tt::tolerance(0.00001));
+     
 }
 
 BOOST_AUTO_TEST_CASE(bnr_ssm)
@@ -299,5 +342,6 @@ BOOST_AUTO_TEST_CASE( hyb_dis )
     BOOST_TEST(testword.GetWord() == 0x0000a300);
     BOOST_TEST(testword.GetBits(16, 13) == 0xa);
 }
+
 
 BOOST_AUTO_TEST_SUITE_END()

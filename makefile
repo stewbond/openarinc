@@ -17,7 +17,8 @@ $(INTDIR)/%.o : $(SRCDIR)/a429/%.cpp
 	g++ -c -o $@ $< $(CC_FLAGS)
 
 test: bin/libopenarinc.a test/test.cpp 
-	g++ test/test.cpp bin/libopenarinc.a -o $(BINDIR)/test -I$(INCDIR) -I../boost
+	g++ test/test.cpp bin/libopenarinc.a -o $(BINDIR)/test -I$(INCDIR) -I../boost -w
+	./bin/test --random=1 --report_level=short
 
 .PHONY: clean
 
